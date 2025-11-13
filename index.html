@@ -348,7 +348,7 @@
                 setLanguage(currentLang);
                 
                 // 啟動新的背景動畫
-                managePersistentLanterns(); // <-- 修正: 呼叫 managePersistentLanterns 而不是 startBackgroundAnimation
+                managePersistentLanterns(); 
 
                 try {
                     const guestsCollection = collection(db, "guests");
@@ -523,15 +523,35 @@
             }
             
             async function callGeminiAPI(prompt) {
-                const apiKey = "AIzaSyDtzxkOT7VZLq8uhPZMbiZgbRLv-uj_hl4";
+                const apiKey = "AIzaSyAjWJT5iHrPy4m8sfa-AoH7EMjA_0OA3NQ";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
                 const payload = { contents: [{ parts: [{ text: prompt }] }] };
-                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const result = await response.json();
-                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (text) return text;
-                throw new Error('Invalid response structure from Gemini API');
+
+                // --- 重新加入重試機制 ---
+                let retries = 3, delay = 1000;
+                while(retries > 0) {
+                    try {
+                        const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                        if (!response.ok) {
+                            // 不重試 400 (用戶端錯誤)
+                            if (response.status === 400) {
+                                retries = 0; 
+                            }
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        const result = await response.json();
+                        const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                        if (text) return text; // 成功
+                        throw new Error('Invalid response structure from Gemini API');
+                    } catch (error) {
+                        console.error(`Attempt failed: ${error.message}`);
+                        retries--;
+                        if (retries === 0) throw new Error(`Max retries reached. Last error: ${error.message}`);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        delay *= 2; // 指數退避
+                    }
+                }
+                // --- 重試機制結束 ---
             }
 
             function showToast(message, type = 'success') {
