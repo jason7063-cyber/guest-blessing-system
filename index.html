@@ -14,25 +14,81 @@
         .nav-btn.active, .nav-btn:hover, .lang-btn.active, .lang-btn:hover { background-color: #005a9e; color: #ffffff; }
         .submit-btn { background: linear-gradient(145deg, #facc15, #eab308); color: #422006; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+
+        #display-section { position: relative; overflow: hidden; }
+
+        /* --- 前景跑馬燈樣式 --- */
+        .marquee-wall { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; justify-content: space-around; }
         .marquee-container { width: 100%; overflow: hidden; white-space: nowrap; box-sizing: border-box; display: flex; align-items: center; height: 25%; }
         .marquee-content { display: inline-block; padding-left: 100%; animation: marquee 60s linear infinite; }
         .marquee-container:hover .marquee-content { animation-play-state: paused; }
-        .blessing-item { display: inline-flex; align-items: baseline; margin: 0 2rem; font-size: 1.5rem; color: #f59e0b; }
-        .blessing-item .name { color: #4b5563; font-size: 1.1rem; margin-left: 0.75rem; white-space: nowrap; }
-        .blessing-item .details { color: #6b7280; font-size: 0.9rem; margin-left: 0.5rem; white-space: nowrap; }
+        .blessing-item { display: inline-flex; align-items: baseline; margin: 0 2rem; font-size: 1.5rem; color: #f59e0b; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
+        .blessing-item .name { color: #4b5563; font-size: 1.1rem; margin-left: 0.75rem; }
+        .blessing-item .details { color: #6b7280; font-size: 0.9rem; margin-left: 0.5rem; }
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
-        .lantern-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: -1; }
-        .lantern { position: absolute; bottom: -150px; background: #facc15; border-radius: 45% 45% 10% 10%; opacity: 0; animation: float-up 20s infinite linear; box-shadow: 0 0 20px #facc15, 0 0 30px #facc15; }
-        .lantern::before { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 20px; height: 10px; background: #a16207; border-radius: 0 0 5px 5px; }
-        .lantern.small { width: 30px; height: 36px; } .lantern.medium { width: 40px; height: 48px; } .lantern.large { width: 60px; height: 72px; }
-        @keyframes float-up { 0% { transform: translateY(0); opacity: 0; } 10% { opacity: 0.7; } 90% { opacity: 0.7; } 100% { transform: translateY(-120vh) rotate(10deg); opacity: 0; } }
+        
+        /* --- 背景天燈 --- */
+        .background-lantern-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; overflow: hidden; }
+        
+        /* 持續循環的小天燈 */
+        .persistent-lantern {
+            position: absolute;
+            bottom: -150px;
+            width: 80px;
+            height: 80px;
+            opacity: 0;
+            animation: float-up-persistent 25s linear infinite;
+        }
+
+        /* 承載祝福語的大天燈 */
+        .bg-lantern {
+            position: absolute;
+            bottom: -350px;
+            display: grid;
+            place-items: center;
+            opacity: 0;
+            animation: float-up-bg 30s linear forwards;
+            filter: blur(1px);
+        }
+        .bg-lantern > * { grid-column: 1 / -1; grid-row: 1 / -1; }
+        .bg-lantern-text {
+            width: 200px;
+            padding: 15px;
+            text-align: center;
+            color: #854d0e; /* 深橘色文字 */
+            opacity: 0.95;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .bg-lantern-text .blessing { font-size: 1.3rem; font-weight: 700; word-wrap: break-word; }
+        .bg-lantern-text .name { font-size: 1rem; margin-top: 8px; font-weight: 500;}
+        
+        /* SVG 天燈共用樣式 */
+        .lantern-svg {
+            filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.7));
+            overflow: visible;
+        }
+
+        @keyframes float-up-persistent {
+            0% { transform: translateY(0) scale(0.5); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-120vh) scale(0.8); opacity: 0; }
+        }
+        @keyframes float-up-bg {
+            0% { transform: translateY(0) scale(1); opacity: 0; }
+            15% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { transform: translateY(-120vh) scale(1.5); opacity: 0; }
+        }
     </style>
 </head>
 <body class="w-full h-screen flex flex-col p-4 md:p-6 lg:p-8">
 
-    <div class="lantern-container" id="lantern-container"></div>
-
-    <header class="flex-shrink-0 flex flex-col md:flex-row justify-between items-center mb-4 z-10">
+    <header class="flex-shrink-0 flex flex-col md:flex-row justify-between items-center mb-4 z-20">
         <h1 id="event-title" class="text-2xl md:text-3xl lg:text-4xl font-bold text-[#005a9e] mb-4 md:mb-0 text-center md:text-left"></h1>
         <nav class="flex items-center space-x-2 md:space-x-4">
             <div class="flex space-x-2 rounded-lg p-1 bg-gray-200/80 backdrop-blur-sm">
@@ -84,8 +140,9 @@
             </div>
         </section>
 
-        <section id="display-section" class="w-full h-full">
-            <div id="blessing-wall" class="w-full h-full bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-2xl shadow-xl flex flex-col justify-around p-4 relative">
+        <section id="display-section" class="w-full h-full bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-2xl shadow-xl">
+             <div class="background-lantern-container" id="background-lantern-container"></div>
+             <div class="marquee-wall">
                 <div id="blessing-placeholder" class="absolute inset-0 flex items-center justify-center text-center text-gray-500">
                     <p data-lang-key="blessingPlaceholder" class="text-2xl"></p>
                 </div>
@@ -93,7 +150,7 @@
                 <div class="marquee-container"><div class="marquee-content" id="marquee-content-2"></div></div>
                 <div class="marquee-container"><div class="marquee-content" id="marquee-content-3"></div></div>
                 <div class="marquee-container"><div class="marquee-content" id="marquee-content-4"></div></div>
-            </div>
+             </div>
         </section>
 
         <div id="toast" class="fixed bottom-10 right-10 bg-green-500 text-white py-3 px-6 rounded-lg shadow-xl text-lg opacity-0 transform translate-y-5 transition-all duration-500"></div>
@@ -104,14 +161,15 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
         const firebaseConfig = {
-            apiKey: "AIzaSyBMDpfUenL-VTxkHrfZeBgVDMsvtPUoK9g",
-            authDomain: "guest-blessing-system.firebaseapp.com",
-            projectId: "guest-blessing-system",
-            storageBucket: "guest-blessing-system.appspot.com",
-            messagingSenderId: "953533576568",
-            appId: "1:953533576568:web:923b2abff3a0060af4c48d",
-            measurementId: "G-7KGHWGPPE9"
+         apiKey: "AIzaSyBMDpfUenL-VTxkHrfZeBgVDMsvtPUoK9g",
+         authDomain: "guest-blessing-system.firebaseapp.com",
+         projectId: "guest-blessing-system",
+         storageBucket: "guest-blessing-system.firebasestorage.app",
+         messagingSenderId: "953533576568",
+         appId: "1:953533576568:web:85350cff0440e8f5f4c48d",
+         measurementId: "G-EF68SDS4RB"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -134,20 +192,40 @@
                     document.getElementById('marquee-content-4')
                 ],
                 blessingPlaceholder: document.getElementById('blessing-placeholder'),
+                backgroundLanternContainer: document.getElementById('background-lantern-container'),
                 toast: document.getElementById('toast'),
-                lanternContainer: document.getElementById('lantern-container'),
                 generateBlessingBtn: document.getElementById('generate-blessing-btn'),
                 blessingTextarea: document.getElementById('blessing'),
                 blessingLoader: document.getElementById('blessing-loader'),
             };
 
             const translations = {
-                'zh-Hant': { eventTitleDefault: '2025桃園市國民小學中外師資培訓共識營', navInput: '簽到輸入', navDisplay: '祝福牆面', signInTitle: '貴賓簽到', labelName: '姓名', labelSchool: '服務學校', labelTitle: '職稱', labelBlessing: '祝福語 (50字以內)', submitButton: '簽到', blessingPlaceholder: '等待貴賓的祝福...', toastSuccess: '感謝您的祝福！簽到成功！', toastError: '請填寫所有欄位', aiButton: 'AI 幫我寫', aiLoading: '產生中...', toastAiError: 'AI祝福語產生失敗，請稍後再試', geminiPrompt: (title) => `你是一位參加「${title}」活動的貴賓。請以正體中文寫一句簡短、誠摯且正面的祝福語，風格高雅，字數請控制在50字以內。`, },
-                'en': { eventTitleDefault: '2025 Taoyuan Elementary School Teacher Training Camp', navInput: 'Sign-In Form', navDisplay: 'Blessing Wall', signInTitle: 'Guest Sign-In', labelName: 'Name', labelSchool: 'School/Organization', labelTitle: 'Title', labelBlessing: 'Blessing (max 50 characters)', submitButton: 'Sign In', blessingPlaceholder: 'Waiting for guests\' blessings...', toastSuccess: 'Thank you for your blessing! Sign-in successful!', toastError: 'Please fill in all fields.', aiButton: 'Generate with AI', aiLoading: 'Generating...', toastAiError: 'AI blessing generation failed. Please try again later.', geminiPrompt: (title) => `You are a distinguished guest attending the "${title}" event. Please write a short, sincere, and positive blessing in elegant English, within 50 characters.`, }
+                'zh-Hant': { eventTitleDefault: '2025桃園市國民小學中外師資培訓共識營', navInput: '簽到輸入', navDisplay: '祝福牆面', signInTitle: '貴賓簽到', labelName: '姓名', labelSchool: '服務學校', labelTitle: '職稱', labelBlessing: '祝福語 (50字以內)', submitButton: '簽到', blessingPlaceholder: '等待貴賓的祝福...', toastSuccess: '感謝您的祝福！簽到成功！', toastError: '請填寫所有欄位', aiButton: 'AI 幫我寫', aiLoading: '產生中...', toastAiError: 'AI祝福語產生失敗，請稍後再試', toastDbError: '簽到失敗，請檢查網路連線或聯繫管理員。', geminiPrompt: (title) => `你是一位參加「${title}」活動的貴賓。請以正體中文寫一句簡短、誠摯且正面的祝福語，風格高雅，字數請控制在50字以內。`, },
+                'en': { eventTitleDefault: '2025 Taoyuan Elementary School Teacher Training Consensus Camp', navInput: 'Sign-In Form', navDisplay: 'Blessing Wall', signInTitle: 'Guest Sign-In', labelName: 'Name', labelSchool: 'School/Organization', labelTitle: 'Title', labelBlessing: 'Blessing (max 50 characters)', submitButton: 'Sign In', blessingPlaceholder: 'Waiting for guests\' blessings...', toastSuccess: 'Thank you for your blessing! Sign-in successful!', toastError: 'Please fill in all fields.', aiButton: 'Generate with AI', aiLoading: 'Generating...', toastAiError: 'AI blessing generation failed. Please try again later.', toastDbError: 'Sign-in failed. Please check your connection or contact an administrator.', geminiPrompt: (title) => `You are a distinguished guest attending the "${title}" event. Please write a short, sincere, and positive blessing in elegant English, within 50 characters.`, }
             };
             
             let guests = [];
             let currentLang = 'zh-Hant';
+            let processedDocIds = new Set();
+
+            // --- Google Sheet 整合 ---
+            const googleAppScriptUrl = "https://script.google.com/macros/s/AKfycbyS5z01QVYHwABEgxlJ8UkD4uH6B-xBSizSkZoH7OKj0hP0uQS1rDEVc7Axds4TJgLG/exec";
+            // --------------------------
+
+            // SVG 天燈模板
+            const yellowLanternSVG = `
+                <svg viewBox="0 0 100 100" class="lantern-svg" style="width: 100%; height: 100%;">
+                    <path d="M 20 25 C 20 5, 80 5, 80 25 L 85 80 C 85 95, 15 95, 15 80 Z" fill="#FBBF24"/>
+                    <path d="M 20 25 C 20 35, 80 35, 80 25 C 80 15, 20 15, 20 25" fill="#FDE68A"/>
+                    <rect x="15" y="80" width="70" height="10" rx="3" fill="#D97706"/>
+                </svg>`;
+            
+            const orangeLanternSVG = `
+                <svg viewBox="0 0 100 100" class="lantern-svg" style="width: 100%; height: 100%;">
+                    <path d="M 20 25 C 20 5, 80 5, 80 25 L 85 80 C 85 95, 15 95, 15 80 Z" fill="#F97316"/>
+                    <path d="M 20 25 C 20 35, 80 35, 80 25 C 80 15, 20 15, 20 25" fill="#FDBA74"/>
+                    <rect x="15" y="80" width="70" height="10" rx="3" fill="#B45309"/>
+                </svg>`;
 
             function setLanguage(lang) {
                 currentLang = lang;
@@ -162,19 +240,25 @@
                 elements.langEnBtn.classList.toggle('active', lang === 'en');
             }
             
-            function createLanterns() { for (let i = 0; i < 10; i++) { const lantern = document.createElement('div'); const sizeClass = ['small', 'medium', 'large'][Math.floor(Math.random() * 3)]; lantern.className = `lantern ${sizeClass}`; lantern.style.left = `${Math.random() * 100}vw`; lantern.style.animationDuration = `${Math.random() * 15 + 15}s`; lantern.style.animationDelay = `${Math.random() * 20}s`; elements.lanternContainer.appendChild(lantern); } }
-
             function init() {
                 setLanguage(currentLang);
-                createLanterns();
                 switchView('display');
                 
+                // 啟動持續的背景小天燈
+                startPersistentLanterns();
+
                 const guestsCollection = collection(db, "guests");
                 onSnapshot(guestsCollection, (snapshot) => {
-                    guests = []; 
-                    snapshot.forEach((doc) => { guests.push(doc.data()); });
-                    guests.sort((a, b) => a.timestamp - b.timestamp);
+                    guests = snapshot.docs.map(doc => doc.data());
+                    guests.sort((a, b) => a.timestamp?.seconds - b.timestamp?.seconds);
                     updateBlessingMarquee();
+
+                    snapshot.docChanges().forEach((change) => {
+                        if (change.type === "added" && !processedDocIds.has(change.doc.id)) {
+                            processedDocIds.add(change.doc.id);
+                            launchBackgroundLantern(change.doc.data());
+                        }
+                    });
                 });
 
                 elements.showInputBtn.addEventListener('click', () => switchView('input'));
@@ -184,7 +268,44 @@
                 elements.guestForm.addEventListener('submit', handleFormSubmit);
                 elements.generateBlessingBtn.addEventListener('click', handleGenerateBlessing);
             }
-            
+
+            function startPersistentLanterns() {
+                setInterval(() => {
+                    const lantern = document.createElement('div');
+                    lantern.className = 'persistent-lantern';
+                    lantern.innerHTML = Math.random() > 0.5 ? yellowLanternSVG : orangeLanternSVG;
+                    
+                    lantern.style.left = `${Math.random() * 90}%`;
+                    lantern.style.animationDuration = `${Math.random() * 15 + 20}s`; // 20-35s
+                    elements.backgroundLanternContainer.appendChild(lantern);
+                    lantern.addEventListener('animationend', () => lantern.remove());
+                }, 3000); // 每 3 秒產生一個
+            }
+
+            function launchBackgroundLantern(guest) {
+                const lantern = document.createElement('div');
+                lantern.className = 'bg-lantern';
+                
+                const lanternSVG = Math.random() > 0.5 ? yellowLanternSVG : orangeLanternSVG;
+                
+                lantern.innerHTML = `
+                    <div style="width: 220px; height: 264px; position: relative;">
+                        ${lanternSVG.replace('<svg', '<svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.7;"')}
+                        <div class="bg-lantern-text" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+                            <p class="blessing">“${guest.blessing}”</p>
+                            <p class="name">- ${guest.name}</p>
+                        </div>
+                    </div>
+                `;
+                
+                lantern.style.left = `${Math.random() * 70 + 15}%`;
+                lantern.style.transform = `scale(${Math.random() * 0.4 + 0.8})`;
+                lantern.style.animationDuration = `${Math.random() * 10 + 25}s`;
+
+                elements.backgroundLanternContainer.appendChild(lantern);
+                lantern.addEventListener('animationend', () => lantern.remove());
+            }
+
             function switchView(view) {
                 elements.inputSection.classList.toggle('hidden', view !== 'input');
                 elements.displaySection.classList.toggle('hidden', view !== 'display');
@@ -193,22 +314,15 @@
             }
 
             async function sendDataToGoogleSheet(guestData) {
-                const googleAppScriptUrl = "https://script.google.com/macros/s/AKfycbw3YFmhCQEIuQ4mHQ7egzftETvSxVwvCrKnBRauoUNJ7wjgUUXqqcg8H6GZ4dWR24tZ/exec";
-                const payload = {
-                    name: guestData.name,
-                    organization: guestData.organization,
-                    title: guestData.title,
-                    blessing: guestData.blessing
-                };
+                if (!googleAppScriptUrl || googleAppScriptUrl === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") {
+                    console.warn("Google Apps Script URL is not set. Data will not be backed up to Google Sheet.");
+                    return;
+                }
+                const payload = { name: guestData.name, organization: guestData.organization, title: guestData.title, blessing: guestData.blessing };
                 try {
-                    await fetch(googleAppScriptUrl, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify(payload)
-                    });
-                } catch (error) {
-                    console.error('Failed to send data to Google Sheet:', error);
+                    await fetch(googleAppScriptUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+                } catch (error) { 
+                    console.error('Failed to send data to Google Sheet:', error); 
                 }
             }
 
@@ -216,14 +330,12 @@
                 e.preventDefault();
                 const formData = new FormData(elements.guestForm);
                 const newGuestData = { name: formData.get('name').trim(), organization: formData.get('organization').trim(), title: formData.get('title').trim(), blessing: formData.get('blessing').trim() };
-                
                 if (newGuestData.name && newGuestData.organization && newGuestData.title && newGuestData.blessing) {
                     try {
-                        // 1. 寫入 Firebase (加上 server timestamp)
                         const guestForFirebase = { ...newGuestData, timestamp: serverTimestamp() };
                         await addDoc(collection(db, "guests"), guestForFirebase);
                         
-                        // 2. 同時傳送到 Google Sheet (不含 timestamp)
+                        // == 新增 == : 同時傳送到 Google Sheet
                         sendDataToGoogleSheet(newGuestData);
 
                         elements.guestForm.reset();
@@ -231,29 +343,27 @@
                         switchView('display');
                     } catch (error) { 
                         console.error("Error adding document: ", error); 
-                        alert("資料寫入失敗，請檢查網路連線或聯繫管理員。"); 
+                        showToast(translations[currentLang].toastDbError, 'error'); // 改用 showToast
                     }
-                } else { 
-                    showToast(translations[currentLang].toastError, 'error'); 
-                }
+                } else { showToast(translations[currentLang].toastError, 'error'); }
             }
             
             function updateBlessingMarquee() {
-                if (guests.length > 0) {
-                    elements.blessingPlaceholder.style.display = 'none';
-                    elements.marqueeContents.forEach(mc => mc.innerHTML = '');
-                    const marqueeGuests = [[], [], [], []];
-                    guests.forEach((guest, index) => marqueeGuests[index % 4].push(guest));
-                    marqueeGuests.forEach((rowGuests, index) => {
-                        if (rowGuests.length > 0) {
-                            const content = rowGuests.map(g => `<div class="blessing-item">“${g.blessing}”<span class="name">- ${g.name}</span><span class="details">(${g.organization} ${g.title})</span></div>`).join('');
-                            const marqueeElement = elements. marqueeContents[index];
-                            marqueeElement.innerHTML = content;
-                            const duration = (rowGuests.length * (35 + [0, -4, 3, -2][index]));
-                            marqueeElement.style.animation = `marquee ${Math.max(duration, 40)}s linear infinite`;
-                        }
-                    });
-                } else { elements.blessingPlaceholder.style.display = 'flex'; }
+                elements.blessingPlaceholder.style.display = guests.length > 0 ? 'none' : 'flex';
+                elements.marqueeContents.forEach(mc => mc.innerHTML = '');
+                if (guests.length === 0) return;
+                
+                const marqueeGuests = [[], [], [], []];
+                guests.forEach((guest, index) => marqueeGuests[index % 4].push(guest));
+                marqueeGuests.forEach((rowGuests, index) => {
+                    if (rowGuests.length > 0) {
+                        const content = rowGuests.map(g => `<div class="blessing-item">“${g.blessing}”<span class="name">- ${g.name}</span><span class="details">(${g.organization} ${g.title})</span></div>`).join('');
+                        const marqueeElement = elements.marqueeContents[index];
+                        marqueeElement.innerHTML = content;
+                        const duration = (rowGuests.length * (35 + [0, -4, 3, -2][index]));
+                        marqueeElement.style.animation = `marquee ${Math.max(duration, 40)}s linear infinite`;
+                    }
+                });
             }
             
             async function handleGenerateBlessing() {
@@ -264,36 +374,20 @@
                 try {
                     const generatedBlessing = await callGeminiAPI(prompt);
                     elements.blessingTextarea.value = generatedBlessing.replace(/["“”]/g, '');
-                } catch (error) {
-                    console.error('Error calling Gemini API:', error);
-                    showToast(translations[currentLang].toastAiError, 'error');
-                } finally {
-                    elements.blessingLoader.classList.add('hidden');
-                    elements.generateBlessingBtn.disabled = false;
-                }
+                } catch (error) { console.error('Error calling Gemini API:', error); showToast(translations[currentLang].toastAiError, 'error'); } 
+                finally { elements.blessingLoader.classList.add('hidden'); elements.generateBlessingBtn.disabled = false; }
             }
             
             async function callGeminiAPI(prompt) {
                 const apiKey = "AIzaSyDtzxkOT7VZLq8uhPZMbiZgbRLv-uj_hl4";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
                 const payload = { contents: [{ parts: [{ text: prompt }] }] };
-                let retries = 3, delay = 1000;
-                while(retries > 0) {
-                    try {
-                        const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                        const result = await response.json();
-                        const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                        if (text) return text;
-                        throw new Error('Invalid response structure from Gemini API');
-                    } catch (error) {
-                        console.error(`Attempt failed: ${error.message}`);
-                        retries--;
-                        if (retries === 0) throw new Error('Max retries reached.');
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        delay *= 2;
-                    }
-                }
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (text) return text;
+                throw new Error('Invalid response structure from Gemini API');
             }
 
             function showToast(message, type = 'success') {
@@ -308,8 +402,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
