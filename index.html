@@ -9,21 +9,39 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Poppins', 'Noto Sans TC', sans-serif; background: linear-gradient(to bottom, #f0f2f5, #ffffff); color: #374151; overflow: hidden; position: relative; }
-        .nav-btn, .lang-btn { background-color: #e5e7eb; color: #4b5563; transition: all 0.3s ease; }
-        .nav-btn.active, .nav-btn:hover, .lang-btn.active, .lang-btn:hover { background-color: #005a9e; color: #ffffff; }
-        .submit-btn { background: linear-gradient(145deg, #facc15, #eab308); color: #422006; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        body { 
+            font-family: 'Poppins', 'Noto Sans TC', sans-serif; 
+            background: linear-gradient(135deg, #0d4c6c 0%, #00a0a8 100%); 
+            color: #e2e8f0; 
+            overflow: hidden; 
+            position: relative; 
+        }
+        .nav-btn, .lang-btn { 
+            background-color: #0b3a52; /* Darker Teal */
+            color: #e2e8f0; 
+            transition: all 0.3s ease; 
+        }
+        .nav-btn.active, .nav-btn:hover, .lang-btn.active, .lang-btn:hover { 
+            background-color: #f05a28; /* Accent Orange */
+            color: #ffffff; 
+        }
+        .submit-btn { 
+            background: linear-gradient(145deg, #f7941e, #f05a28); /* Yellow to Orange Gradient */
+            color: #ffffff; 
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            transition: all 0.3s ease; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+        }
         .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
 
         #display-section { position: relative; overflow: hidden; }
 
         /* --- 跑馬燈樣式 --- */
         .marquee-wall { 
-            /* z-index: 10; (在這個結構中不再需要) */
             display: flex; 
             flex-direction: column; 
             justify-content: space-around;
-            position: relative; /* 改回 relative */
+            position: relative; 
             width: 100%; height: 100%;
         }
         .marquee-container { width: 100%; overflow: hidden; white-space: nowrap; box-sizing: border-box; display: flex; align-items: center; height: 25%; }
@@ -34,62 +52,66 @@
             align-items: baseline; 
             margin: 0 2rem; 
             font-size: 1.5rem; 
-            color: #f59e0b; 
+            color: #f7941e; /* Accent Yellow */
             text-shadow: 1px 1px 2px rgba(0,0,0,0.1); 
-            background-color: rgba(255, 255, 255, 0.45); /* 白色 45% 背景 */
+            background-color: #111827; /* Dark 100% BG (bg-gray-900) */
             padding: 0.25rem 0.75rem; 
             border-radius: 0.5rem; 
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            position: relative; /* 確保在天燈之上 */
+            position: relative; 
             z-index: 10;
         }
-        .blessing-item .name { color: #4b5563; font-size: 1.1rem; margin-left: 0.75rem; }
-        .blessing-item .details { color: #6b7280; font-size: 0.9rem; margin-left: 0.5rem; }
+        .blessing-item .name { color: #cbd5e1; font-size: 1.1rem; margin-left: 0.75rem; }
+        .blessing-item .details { color: #94a3b8; font-size: 0.9rem; margin-left: 0.5rem; }
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
         
-        /* --- 背景天燈 --- */
-        .background-lantern-container { 
+        /* --- 新背景動畫 --- */
+        .background-animation-container { 
             position: absolute; 
             top: 0; left: 0; 
             width: 100%; height: 100%; 
-            z-index: 1; /* 1. 最底層 (天燈) */
+            z-index: 1; 
             overflow: hidden; 
         }
         
-        /* 持續循環的小天燈 */
-        .persistent-lantern {
+        .bg-icon {
             position: absolute;
-            bottom: -150px;
-            width: 80px;
-            height: 80px;
-            opacity: 0;
-            animation: float-up-persistent 25s linear infinite;
+            left: -10%;
+            width: 50px;
+            height: 50px;
+            animation: float-across 20s linear infinite;
+            will-change: transform, opacity, left;
+            z-index: 1;
         }
         
-        /* SVG 天燈共用樣式 */
-        .lantern-svg {
-            filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.7));
-            overflow: visible;
-        }
-
-        @keyframes float-up-persistent {
-            0% { transform: translateY(0) scale(0.5); opacity: 0; }
-            10% { opacity: 0.6; }
-            90% { opacity: 0.6; }
-            100% { transform: translateY(-120vh) scale(0.8); opacity: 0; }
+        @keyframes float-across {
+            0% { 
+                transform: translateX(0) rotate(-10deg); 
+                opacity: 0; 
+            }
+            10% { 
+                opacity: 0.4; 
+            }
+            90% { 
+                opacity: 0.4; 
+            }
+            100% { 
+                transform: translateX(110vw) rotate(10deg); 
+                opacity: 0; 
+            }
         }
     </style>
 </head>
 <body class="w-full h-screen flex flex-col p-4 md:p-6 lg:p-8">
 
     <header class="flex-shrink-0 flex flex-col md:flex-row justify-between items-center mb-4 z-20">
-        <h1 id="event-title" class="text-2xl md:text-3xl lg:text-4xl font-bold text-[#005a9e] mb-4 md:mb-0 text-center md:text-left"></h1>
+        <h1 id="event-title" class="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4 md:mb-0 text-center md:text-left"></h1>
         <nav class="flex items-center space-x-2 md:space-x-4">
-            <div class="flex space-x-2 rounded-lg p-1 bg-gray-200/80 backdrop-blur-sm">
+            <div class="flex space-x-2 rounded-lg p-1 bg-gray-900/50 backdrop-blur-sm">
                 <button id="show-input-btn" data-lang-key="navInput" class="nav-btn px-4 py-2 text-sm md:text-base font-semibold rounded-md"></button>
                 <button id="show-display-btn" data-lang-key="navDisplay" class="nav-btn px-4 py-2 text-sm md:text-base font-semibold rounded-md"></button>
             </div>
-            <div class="flex items-center space-x-2 rounded-lg p-1 bg-gray-200/80 backdrop-blur-sm">
+            <div class="flex items-center space-x-2 rounded-lg p-1 bg-gray-900/50 backdrop-blur-sm">
                 <button id="lang-zh-btn" class="lang-btn px-3 py-2 text-sm md:text-base font-semibold rounded-md">中文</button>
                 <button id="lang-en-btn" class="lang-btn px-3 py-2 text-sm md:text-base font-semibold rounded-md">EN</button>
             </div>
@@ -97,39 +119,37 @@
     </header>
 
     <main class="flex-grow w-full h-full overflow-hidden z-10 relative">
-        <!-- 天燈背景 (最底層) -->
-        <div class="background-lantern-container" id="background-lantern-container" style="z-index: 1;"></div>
+        <!-- 背景動畫容器 (移到 main 層級) --><div class="background-animation-container" id="background-animation-container" style="z-index: 1;"></div>
 
-        <!-- 簽到區塊 (上層) -->
-        <section id="input-section" class="hidden w-full h-full flex items-center justify-center" style="z-index: 10;">
-            <div class="w-full max-w-lg bg-white/80 backdrop-blur-sm border border-gray-200 p-8 rounded-2xl shadow-xl">
-                <h2 data-lang-key="signInTitle" class="text-3xl font-bold text-center mb-6 text-[#005a9e]"></h2>
+        <!-- 簽到區塊 (上層) --><section id="input-section" class="hidden w-full h-full flex items-center justify-center" style="z-index: 20; position: relative;">
+            <div class="w-full max-w-lg bg-gray-900/90 backdrop-blur-md border border-gray-700 p-8 rounded-2xl shadow-xl">
+                <h2 data-lang-key="signInTitle" class="text-3xl font-bold text-center mb-6 text-[#f7941e]"></h2>
                 <form id="guest-form" class="space-y-6">
                     <div>
-                        <label for="name" data-lang-key="labelName" class="block text-sm font-medium text-gray-600 mb-1"></label>
-                        <input type="text" id="name" name="name" required class="w-full bg-gray-100 border border-gray-300 text-gray-900 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#005a9e]">
+                        <label for="name" data-lang-key="labelName" class="block text-sm font-medium text-gray-300 mb-1"></label>
+                        <input type="text" id="name" name="name" required class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500">
                     </div>
                     <div>
-                        <label for="organization" data-lang-key="labelSchool" class="block text-sm font-medium text-gray-600 mb-1"></label>
-                        <input type="text" id="organization" name="organization" required class="w-full bg-gray-100 border border-gray-300 text-gray-900 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#005a9e]">
+                        <label for="organization" data-lang-key="labelSchool" class="block text-sm font-medium text-gray-300 mb-1"></label>
+                        <input type="text" id="organization" name="organization" required class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500">
                     </div>
                     <div>
-                        <label for="title" data-lang-key="labelTitle" class="block text-sm font-medium text-gray-600 mb-1"></label>
-                        <input type="text" id="title" name="title" required class="w-full bg-gray-100 border border-gray-300 text-gray-900 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#005a9e]">
+                        <label for="title" data-lang-key="labelTitle" class="block text-sm font-medium text-gray-300 mb-1"></label>
+                        <input type="text" id="title" name="title" required class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500">
                     </div>
                     <div>
                         <div class="flex justify-between items-center mb-1">
-                            <label for="blessing" data-lang-key="labelBlessing" class="block text-sm font-medium text-gray-600"></label>
-                            <button type="button" id="generate-blessing-btn" class="text-sm text-[#005a9e] hover:text-[#f59e0b] font-semibold transition-colors duration-200 flex items-center">
+                            <label for="blessing" data-lang-key="labelBlessing" class="block text-sm font-medium text-gray-300"></label>
+                            <button type="button" id="generate-blessing-btn" class="text-sm text-[#00a0a8] hover:text-[#f7941e] font-semibold transition-colors duration-200 flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-magic mr-1" viewBox="0 0 16 16"><path d="M9.5 2.672a.5.5 0 1 0 1 0V.843a.5.5 0 0 0-1 0v1.829Zm4.5.035A.5.5 0 0 0 13.293 2L12 3.293a.5.5 0 1 0 .707.707L14 2.707a.5.5 0 0 0 0-.707ZM7.293 4L8 3.293a.5.5 0 1 0-.707-.707L6.586 3.586a.5.5 0 0 0 0 .707l.707.707a.5.5 0 0 0 .707 0Z"/><path d="M.5 10.025a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0v-2.5h-2a.5.5 0 0 1-.5-.5Zm8.5-4.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-2.5v2.5a.5.5 0 0 1-1 0v-3Zm-4.5 7a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-2.5v2.5a.5.5 0 0 1-1 0v-3Z"/></svg>
                                 <span data-lang-key="aiButton"></span>
                             </button>
                         </div>
                         <div class="relative">
-                           <textarea id="blessing" name="blessing" rows="3" maxlength="50" required class="w-full bg-gray-100 border border-gray-300 text-gray-900 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#005a9e]"></textarea>
-                           <div id="blessing-loader" class="absolute inset-0 bg-white/80 flex items-center justify-center rounded-lg hidden">
-                                <svg class="animate-spin h-6 w-6 text-[#005a9e]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                <span data-lang-key="aiLoading" class="ml-2 text-gray-700"></span>
+                           <textarea id="blessing" name="blessing" rows="3" maxlength="50" required class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+                           <div id="blessing-loader" class="absolute inset-0 bg-gray-700/80 flex items-center justify-center rounded-lg hidden">
+                                <svg class="animate-spin h-6 w-6 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                <span data-lang-key="aiLoading" class="ml-2 text-gray-200"></span>
                             </div>
                         </div>
                     </div>
@@ -138,10 +158,9 @@
             </div>
         </section>
 
-        <!-- 祝福牆區塊 (中層，會遮住天燈) -->
-        <section id="display-section" class="w-full h-full bg-white/[.10] backdrop-blur-sm border border-gray-200/50 rounded-2xl shadow-xl" style="z-index: 5;">
-             <div id="blessing-wall" class="marquee-wall w-full h-full p-4 relative">
-                <div id="blessing-placeholder" class="absolute inset-0 flex items-center justify-center text-center text-gray-700 bg-white/50 backdrop-blur-sm">
+        <!-- 祝福牆區塊 (中層) - 已移除背景 --><section id="display-section" class="w-full h-full" style="z-index: 5; position: relative; overflow: hidden;">
+             <!-- 1. 最底層: 10% 透明背景 (已移除) --><!-- <div class="absolute inset-0 bg-gray-900/[.10] backdrop-blur-sm border border-gray-700/50 rounded-2xl" style="z-index: 1;"></div> --><!-- 2. 中間層: 背景動畫 (在 main 區域, z-index: 1) --><!-- 3. 最上層: 跑馬燈 --><div id="blessing-wall" class="marquee-wall w-full h-full p-4 relative" style="z-index: 10;">
+                <div id="blessing-placeholder" class="absolute inset-0 flex items-center justify-center text-center text-white" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">
                     <p data-lang-key="blessingPlaceholder" class="text-2xl font-semibold"></p>
                 </div>
                 <div class="marquee-container"><div class="marquee-content" id="marquee-content-1"></div></div>
@@ -154,8 +173,7 @@
         <div id="toast" class="fixed bottom-10 right-10 bg-green-500 text-white py-3 px-6 rounded-lg shadow-xl text-lg opacity-0 transform translate-y-5 transition-all duration-500"></div>
     </main>
     
-    <!-- 引入 Firebase SDK -->
-    <script type="module">
+    <!-- 引入 Firebase SDK --><script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -190,7 +208,7 @@
                     document.getElementById('marquee-content-4')
                 ],
                 blessingPlaceholder: document.getElementById('blessing-placeholder'),
-                backgroundLanternContainer: document.getElementById('background-lantern-container'),
+                backgroundLanternContainer: document.getElementById('background-animation-container'), // <-- 已更新 ID
                 toast: document.getElementById('toast'),
                 generateBlessingBtn: document.getElementById('generate-blessing-btn'),
                 blessingTextarea: document.getElementById('blessing'),
@@ -199,7 +217,7 @@
 
             const translations = {
                 'zh-Hant': { 
-                    eventTitleDefault: '2025桃園市國民小學中外師資培訓共識營', 
+                    eventTitleDefault: '桃園市國際雙語教育課程領導人工作坊', 
                     navInput: '簽到輸入', 
                     navDisplay: '祝福牆面', 
                     signInTitle: '貴賓簽到', 
@@ -219,7 +237,7 @@
                     geminiPrompt: (title) => `你是一位參加「${title}」活動的貴賓。請以正體中文寫一句簡短、誠摯且正面的祝福語，風格高雅，字數請控制在50字以內。`, 
                 },
                 'en': { 
-                    eventTitleDefault: '2025 Taoyuan Elementary School Teacher Training Consensus Camp', 
+                    eventTitleDefault: 'TAOYUAN INTERNATIONAL BILINGUAL EDUCATION LEADERS WORKSHOP', 
                     navInput: 'Sign-In Form', 
                     navDisplay: 'Blessing Wall', 
                     signInTitle: 'Guest Sign-In', 
@@ -242,26 +260,18 @@
             
             let guests = [];
             let currentLang = 'zh-Hant';
-            let processedDocIds = new Set(); // 保持這個，避免重複觸發舊天燈
 
             // --- Google Sheet 整合 ---
             const googleAppScriptUrl = "https://script.google.com/macros/s/AKfycbyS5z01QVYHwABEgxlJ8UkD4uH6B-xBSizSkZoH7OKj0hP0uQS1rDEVc7Axds4TJgLG/exec";
             // --------------------------
 
-            // SVG 天燈模板
-            const yellowLanternSVG = `
-                <svg viewBox="0 0 100 100" class="lantern-svg" style="width: 100%; height: 100%;">
-                    <path d="M 20 25 C 20 5, 80 5, 80 25 L 85 80 C 85 95, 15 95, 15 80 Z" fill="#FBBF24"/>
-                    <path d="M 20 25 C 20 35, 80 35, 80 25 C 80 15, 20 15, 20 25" fill="#FDE68A"/>
-                    <rect x="15" y="80" width="70" height="10" rx="3" fill="#D97706"/>
-                </svg>`;
-            
-            const orangeLanternSVG = `
-                <svg viewBox="0 0 100 100" class="lantern-svg" style="width: 100%; height: 100%;">
-                    <path d="M 20 25 C 20 5, 80 5, 80 25 L 85 80 C 85 95, 15 95, 15 80 Z" fill="#F97316"/>
-                    <path d="M 20 25 C 20 35, 80 35, 80 25 C 80 15, 20 15, 20 25" fill="#FDBA74"/>
-                    <rect x="15" y="80" width="70" height="10" rx="3" fill="#B45309"/>
-                </svg>`;
+            // --- 新背景動畫 SVG (已修正拼圖) ---
+            const svgBook = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#fde047"><path d="M2 6h20v14H2zm2 2v10h16V8zm2 2h4v2H6zm0 4h8v2H6z"/></svg>`;
+            const svgAirplane = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#38bdf8"><path d="M21.6 3.82a1.2 1.2 0 0 0-1.4-.22L3.84 9.87c-1.1.44-1.12 1.2.06 1.63l4.63 1.63L19.5 7.11l-7.71 8.84 8.24 2.92a1.2 1.2 0 0 0 1.55-1.29L21.82 5.22a1.2 1.2 0 0 0-.22-1.4z"/></svg>`;
+            const svgPuzzle = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ef4444"><path d="M18.5,11H17v-1.5c0-1.38-1.12-2.5-2.5-2.5H13V5.5c0-1.38-1.12-2.5-2.5-2.5S8,4.12,8,5.5V7H6.5c-1.38,0-2.5,1.12-2.5,2.5V11H2.5C1.12,11,0,12.12,0,13.5S1.12,16,2.5,16H4v1.5c0,1.38,1.12,2.5,2.5,2.5H8v1.5c0,1.38,1.12,2.5,2.5,2.5s2.5-1.12,2.5-2.5V19h1.5c1.38,0,2.5-1.12,2.5-2.5V16h1.5c1.38,0,2.5-1.12,2.5-2.5S22.88,11,21.5,11H18.5z"/></svg>`;
+            const bgIcons = [svgBook, svgAirplane, svgPuzzle];
+            let iconCounter = 0; // 依序循環計數器
+            // --------------------------
 
             function setLanguage(lang) {
                 currentLang = lang;
@@ -271,33 +281,38 @@
                     const key = el.dataset.langKey;
                     if (langStrings[key]) el.textContent = langStrings[key];
                 });
-                elements.eventTitle.textContent = langStrings.eventTitleDefault;
+
+                // 更新標題 (使用 localStorage)
+                const savedTitle = localStorage.getItem('eventTitle');
+                if (!savedTitle || savedTitle === translations['zh-Hant'].eventTitleDefault || savedTitle === translations['en'].eventTitleDefault) {
+                     elements.eventTitle.textContent = langStrings.eventTitleDefault;
+                } else {
+                    elements.eventTitle.textContent = savedTitle; // 保留使用者自訂的標題
+                }
+                
                 elements.langZhBtn.classList.toggle('active', lang === 'zh-Hant');
                 elements.langEnBtn.classList.toggle('active', lang === 'en');
             }
             
             function init() {
-                setLanguage(currentLang);
-                switchView('display');
+                // 從 localStorage 讀取活動標題
+                const savedTitle = localStorage.getItem('eventTitle');
+                if (!savedTitle) {
+                    localStorage.setItem('eventTitle', translations[currentLang].eventTitleDefault);
+                }
+                elements.eventTitle.textContent = savedTitle || translations[currentLang].eventTitleDefault;
                 
-                // 啟動持續的背景小天燈
-                // startPersistentLanterns(); // 舊的呼叫方式
-                managePersistentLanterns(); // <-- 改用新的管理函數
+                setLanguage(currentLang);
+                
+                // 啟動新的背景動畫
+                startBackgroundAnimation();
 
                 try {
                     const guestsCollection = collection(db, "guests");
                     onSnapshot(guestsCollection, (snapshot) => {
                         guests = snapshot.docs.map(doc => doc.data());
                         guests.sort((a, b) => (a.timestamp?.seconds || 0) - (b.timestamp?.seconds || 0));
-                        updateBlessingMarquee(); // <--- 改回呼叫跑馬燈
-
-                        // 移除 launchBackgroundLantern 的呼叫
-                        // snapshot.docChanges().forEach((change) => {
-                        //     if (change.type === "added" && !processedDocIds.has(change.doc.id)) {
-                        //         processedDocIds.add(change.doc.id);
-                        //         // launchBackgroundLantern(change.doc.data()); // <--- 移除
-                        //     }
-                        // });
+                        updateBlessingMarquee(); 
                     }, (error) => {
                         console.error("Firestore read error:", error);
                         showToast(translations[currentLang].toastDbReadError, 'error');
@@ -309,52 +324,68 @@
 
                 elements.showInputBtn.addEventListener('click', () => switchView('input'));
                 elements.showDisplayBtn.addEventListener('click', () => switchView('display'));
-                elements.langZhBtn.addEventListener('click', () => setLanguage('zh-Hant'));
-                elements.langEnBtn.addEventListener('click', () => setLanguage('en'));
+                elements.langZhBtn.addEventListener('click', () => {
+                    setLanguage('zh-Hant');
+                    // 如果標題是舊的英文預設，則切換為中文預設
+                    if (localStorage.getItem('eventTitle') === translations['en'].eventTitleDefault) {
+                        localStorage.setItem('eventTitle', translations['zh-Hant'].eventTitleDefault);
+                        elements.eventTitle.textContent = translations['zh-Hant'].eventTitleDefault;
+                    }
+                });
+                elements.langEnBtn.addEventListener('click', () => {
+                    setLanguage('en');
+                    // 如果標題是舊的中文預設，則切換為英文預設
+                    if (localStorage.getItem('eventTitle') === translations['zh-Hant'].eventTitleDefault) {
+                        localStorage.setItem('eventTitle', translations['en'].eventTitleDefault);
+                        elements.eventTitle.textContent = translations['en'].eventTitleDefault;
+                    }
+                });
                 elements.guestForm.addEventListener('submit', handleFormSubmit);
                 elements.generateBlessingBtn.addEventListener('click', handleGenerateBlessing);
-            }
-
-            // === 舊的天燈產生函數 (已移除) ===
-            // function startPersistentLanterns() { ... }
-
-            // === 新的天燈總量管理系統 ===
-            const MAX_LANTERNS = 4; // *** 設定最大同時顯示的天燈數量 ***
-
-            function createPersistentLantern() {
-                // 檢查目前天燈數量，如果超過上限就不再產生
-                const currentLanterns = document.querySelectorAll('.persistent-lantern').length;
-                if (currentLanterns >= MAX_LANTERNS) {
-                    return; // 達到上限，停止產生
-                }
-
-                const lantern = document.createElement('div');
-                lantern.className = 'persistent-lantern';
-                lantern.innerHTML = Math.random() > 0.5 ? yellowLanternSVG : orangeLanternSVG;
                 
-                lantern.style.left = `${Math.random() * 90}%`;
-                lantern.style.animationDuration = `${Math.random() * 20 + 50}s`; // 50-70s 飛行速度
-                elements.backgroundLanternContainer.appendChild(lantern);
-                
-                lantern.addEventListener('animationend', () => {
-                    lantern.remove(); // 天燈消失
-                    // 當一個天燈消失時，嘗試產生一個新的來遞補
-                    // 為了避免同時消失又同時產生，加入一點隨機延遲
-                    setTimeout(createPersistentLantern, Math.random() * 5000); // 0-5秒後遞補
+                // 標題點擊編輯 (保持此功能)
+                elements.eventTitle.addEventListener('click', () => {
+                    const newTitle = prompt(translations[currentLang].promptTitleEdit, elements.eventTitle.textContent);
+                    if (newTitle && newTitle.trim() !== '') {
+                        elements.eventTitle.textContent = newTitle.trim();
+                        localStorage.setItem('eventTitle', newTitle.trim());
+                        showToast(translations[currentLang].toastTitleUpdated, 'info');
+                    }
                 });
+                
+                // 初始切換到祝福牆
+                switchView('display');
             }
 
-            function managePersistentLanterns() {
-                // 初始啟動時，產生最大數量的天燈，並設定隨機延遲讓它們錯開
-                for (let i = 0; i < MAX_LANTERNS; i++) {
-                    setTimeout(createPersistentLantern, Math.random() * 15000); // 0-15秒內錯開產生
-                }
+            // === 新的背景動畫系統 ===
+            function startBackgroundAnimation() {
+                const container = elements.backgroundLanternContainer;
+                container.innerHTML = ''; // 清空舊的天燈
+
+                setInterval(() => {
+                    const currentIcons = document.querySelectorAll('.bg-icon').length;
+                    if (currentIcons >= 8) { // 限制畫面上最多8個圖標 (原為15)
+                        return; 
+                    }
+
+                    const icon = document.createElement('div');
+                    icon.className = 'bg-icon';
+                    
+                    // --- 修改為依序循環 ---
+                    icon.innerHTML = bgIcons[iconCounter % bgIcons.length];
+                    iconCounter++; // 遞增計數器
+                    // ---------------------
+                    
+                    icon.style.bottom = `${Math.random() * 90}%`; // 隨機Y軸起始位置
+                    icon.style.animationDuration = `${Math.random() * 15 + 15}s`; // 15-30s 飛行速度
+                    icon.style.opacity = (Math.random() * 0.3 + 0.4).toFixed(1); // 0.4 - 0.7 透明度 (已調亮)
+                    icon.style.transform = `scale(${Math.random() * 0.5 + 0.5})`; // 0.5x - 1.0x 大小
+
+                    container.appendChild(icon);
+                    icon.addEventListener('animationend', () => icon.remove());
+                }, 4000); // 每 4 秒嘗試產生一個 (原為2000)
             }
-            // === 新的天燈系統結束 ===
-
-
-            // 移除 launchBackgroundLantern 函數
-            // function launchBackgroundLantern(guest) { ... }
+            // === 新系統結束 ===
 
             function switchView(view) {
                 elements.inputSection.classList.toggle('hidden', view !== 'input');
@@ -397,7 +428,6 @@
                 } else { showToast(translations[currentLang].toastError, 'error'); }
             }
             
-            // 恢復為跑馬燈的更新邏輯
             function updateBlessingMarquee() {
                 elements.blessingPlaceholder.style.display = guests.length > 0 ? 'none' : 'flex';
                 elements.marqueeContents.forEach(mc => mc.innerHTML = '');
@@ -410,14 +440,18 @@
                         const content = rowGuests.map(g => `<div class="blessing-item">“${g.blessing}”<span class="name">- ${g.name}</span><span class="details">(${g.organization} ${g.title})</span></div>`).join('');
                         const marqueeElement = elements.marqueeContents[index];
                         marqueeElement.innerHTML = content;
-                        const duration = (rowGuests.length * (35 + [0, -4, 3, -2][index]));
-                        marqueeElement.style.animation = `marquee ${Math.max(duration, 40)}s linear infinite`;
+                        
+                        // 減慢 50% 速度 (增加 50% 時間)
+                        const baseDuration = (rowGuests.length * (35 + [0, -4, 3, -2][index]));
+                        const duration = baseDuration * 1.5; // 速度減慢 50%
+                        
+                        marqueeElement.style.animation = `marquee ${Math.max(duration, 60)}s linear infinite`; // 基礎時間也延長 (原為40)
                     }
                 });
             }
             
             async function handleGenerateBlessing() {
-                const eventTitle = elements.eventTitle.textContent;
+                const eventTitle = localStorage.getItem('eventTitle') || translations[currentLang].eventTitleDefault; // 從 localStorage 獲取標題
                 const prompt = translations[currentLang].geminiPrompt(eventTitle);
                 elements.blessingLoader.classList.remove('hidden');
                 elements.generateBlessingBtn.disabled = true;
