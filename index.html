@@ -45,7 +45,7 @@
             width: 100%; height: 100%;
         }
         .marquee-container { width: 100%; overflow: hidden; white-space: nowrap; box-sizing: border-box; display: flex; align-items: center; height: 25%; }
-        .marquee-content { display: inline-block; padding-left: 100%; animation: marquee 60s linear infinite; }
+        .marquee-content { display: inline-block; padding-left: 100%; animation: marquee 90s linear infinite; } /* 速度減慢 50% (60s -> 90s) */
         .marquee-container:hover .marquee-content { animation-play-state: paused; }
         .blessing-item { 
             display: inline-flex; 
@@ -54,7 +54,7 @@
             font-size: 1.5rem; 
             color: #f7941e; /* Accent Yellow */
             text-shadow: 1px 1px 2px rgba(0,0,0,0.1); 
-            background-color: #111827; /* Dark 100% BG (bg-gray-900) */
+            background-color: rgba(17, 24, 39, 0.4); /* Dark 40% BG (bg-gray-900/40) */
             padding: 0.25rem 0.75rem; 
             border-radius: 0.5rem; 
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
@@ -149,7 +149,7 @@
         <!-- 背景動畫容器 (移到 main 層級) --><div class="background-animation-container" id="background-animation-container" style="z-index: 1;"></div>
 
         <!-- 簽到區塊 (上層) --><section id="input-section" class="hidden w-full h-full flex items-center justify-center" style="z-index: 20; position: relative;">
-            <div class="w-full max-w-lg bg-gray-900/90 backdrop-blur-md border border-gray-700 p-8 rounded-2xl shadow-xl">
+            <div class="w-full max-w-lg bg-gray-900/[.70] backdrop-blur-md border border-gray-700 p-8 rounded-2xl shadow-xl">
                 <h2 data-lang-key="signInTitle" class="text-3xl font-bold text-center mb-6 text-[#f7941e]"></h2>
                 <form id="guest-form" class="space-y-6">
                     <div>
@@ -186,7 +186,11 @@
         </section>
 
         <!-- 祝福牆區塊 (中層) - 已移除背景 --><section id="display-section" class="w-full h-full" style="z-index: 5; position: relative; overflow: hidden;">
-             <!-- 1. 最底層: 10% 透明背景 (已移除) --><!-- <div class="absolute inset-0 bg-gray-900/[.10] backdrop-blur-sm border border-gray-700/50 rounded-2xl" style="z-index: 1;"></div> --><!-- 2. 中間層: 背景動畫 (在 main 區域, z-index: 1) --><!-- 3. 最上層: 跑馬燈 --><div id="blessing-wall" class="marquee-wall w-full h-full p-4 relative" style="z-index: 10;">
+             <!-- 1. 最底層: 10% 透明背景 (已移除) -->
+             
+             <!-- 2. 中間層: 背景動畫 (在 main 區域, z-index: 1) -->
+
+             <!-- 3. 最上層: 跑馬燈 --><div id="blessing-wall" class="marquee-wall w-full h-full p-4 relative" style="z-index: 10;">
                 <div id="blessing-placeholder" class="absolute inset-0 flex items-center justify-center text-center text-white" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">
                     <p data-lang-key="blessingPlaceholder" class="text-2xl font-semibold"></p>
                 </div>
@@ -261,6 +265,8 @@
                     toastAiError: 'AI祝福語產生失敗，請稍後再試', 
                     toastDbError: '簽到失敗，請檢查網路連線或聯繫管理員。', 
                     toastDbReadError: '讀取祝福牆失敗，請檢查網路或Firebase權限。',
+                    promptTitleEdit: '請輸入新的活動標題：',
+                    toastTitleUpdated: '活動標題已更新',
                     geminiPrompt: (title) => `你是一位參加「${title}」活動的貴賓。請以正體中文寫一句簡短、誠摯且正面的祝福語，風格高雅，字數請控制在50字以內。`, 
                 },
                 'en': { 
@@ -281,6 +287,8 @@
                     toastAiError: 'AI blessing generation failed. Please try again later.', 
                     toastDbError: 'Sign-in failed. Please check your connection or contact an administrator.',
                     toastDbReadError: 'Failed to load blessing wall. Please check connection or Firebase permissions.',
+                    promptTitleEdit: 'Please enter the new event title:',
+                    toastTitleUpdated: 'Event title has been updated.',
                     geminiPrompt: (title) => `You are a distinguished guest attending the "${title}" event. Please write a short, sincere, and positive blessing in elegant English, within 50 characters.`, 
                 }
             };
@@ -318,7 +326,7 @@
                 });
 
                 // 更新標題 (使用 localStorage)
-                const savedTitle = localStorage.getItem('eventTitle_v2'); // <-- 修改
+                const savedTitle = localStorage.getItem('eventTitle_v2'); 
                 if (!savedTitle || savedTitle === translations['zh-Hant'].eventTitleDefault || savedTitle === translations['en'].eventTitleDefault) {
                      elements.eventTitle.textContent = langStrings.eventTitleDefault;
                 } else {
@@ -331,16 +339,16 @@
             
             function init() {
                 // 從 localStorage 讀取活動標題
-                const savedTitle = localStorage.getItem('eventTitle_v2'); // <-- 修改
+                const savedTitle = localStorage.getItem('eventTitle_v2'); 
                 if (!savedTitle) {
-                    localStorage.setItem('eventTitle_v2', translations[currentLang].eventTitleDefault); // <-- 修改
+                    localStorage.setItem('eventTitle_v2', translations[currentLang].eventTitleDefault); 
                 }
                 elements.eventTitle.textContent = savedTitle || translations[currentLang].eventTitleDefault;
                 
                 setLanguage(currentLang);
                 
                 // 啟動新的背景動畫
-                startBackgroundAnimation();
+                managePersistentLanterns(); // <-- 修正: 呼叫 managePersistentLanterns 而不是 startBackgroundAnimation
 
                 try {
                     const guestsCollection = collection(db, "guests");
@@ -362,16 +370,16 @@
                 elements.langZhBtn.addEventListener('click', () => {
                     setLanguage('zh-Hant');
                     // 如果標題是舊的英文預設，則切換為中文預設
-                    if (localStorage.getItem('eventTitle_v2') === translations['en'].eventTitleDefault) { // <-- 修改
-                        localStorage.setItem('eventTitle_v2', translations['zh-Hant'].eventTitleDefault); // <-- 修改
+                    if (localStorage.getItem('eventTitle_v2') === translations['en'].eventTitleDefault) { 
+                        localStorage.setItem('eventTitle_v2', translations['zh-Hant'].eventTitleDefault); 
                         elements.eventTitle.textContent = translations['zh-Hant'].eventTitleDefault;
                     }
                 });
                 elements.langEnBtn.addEventListener('click', () => {
                     setLanguage('en');
                     // 如果標題是舊的中文預設，則切換為英文預設
-                    if (localStorage.getItem('eventTitle_v2') === translations['zh-Hant'].eventTitleDefault) { // <-- 修改
-                        localStorage.setItem('eventTitle_v2', translations['en'].eventTitleDefault); // <-- 修改
+                    if (localStorage.getItem('eventTitle_v2') === translations['zh-Hant'].eventTitleDefault) { 
+                        localStorage.setItem('eventTitle_v2', translations['en'].eventTitleDefault); 
                         elements.eventTitle.textContent = translations['en'].eventTitleDefault;
                     }
                 });
@@ -383,44 +391,57 @@
                     const newTitle = prompt(translations[currentLang].promptTitleEdit, elements.eventTitle.textContent);
                     if (newTitle && newTitle.trim() !== '') {
                         elements.eventTitle.textContent = newTitle.trim();
-                        localStorage.setItem('eventTitle_v2', newTitle.trim()); // <-- 修改
+                        localStorage.setItem('eventTitle_v2', newTitle.trim()); 
                         showToast(translations[currentLang].toastTitleUpdated, 'info');
                     }
                 });
                 
                 // 初始切換到祝福牆
                 switchView('display');
+
+                // --- 自動洗牌計時器已移除 ---
             }
 
-            // === 新的背景動畫系統 ===
-            function startBackgroundAnimation() {
-                const container = elements.backgroundLanternContainer;
-                container.innerHTML = ''; // 清空舊的天燈
+            // === 新的背景動畫系統 (總量管制) ===
+            const MAX_LANTERNS = 4; // *** 設定最大同時顯示的圖標數量 ***
 
-                setInterval(() => {
-                    const currentIcons = document.querySelectorAll('.bg-icon').length;
-                    if (currentIcons >= 8) { // 限制畫面上最多8個圖標 (原為15)
-                        return; 
-                    }
+            function createPersistentLantern() {
+                // 檢查目前圖標數量，如果超過上限就不再產生
+                const currentLanterns = document.querySelectorAll('.bg-icon').length;
+                if (currentLanterns >= MAX_LANTERNS) {
+                    return; // 達到上限，停止產生
+                }
 
-                    const icon = document.createElement('div');
-                    icon.className = 'bg-icon';
-                    
-                    // --- 修改為依序循環 ---
-                    icon.innerHTML = bgIcons[iconCounter % bgIcons.length];
-                    iconCounter++; // 遞增計數器
-                    // ---------------------
-                    
-                    icon.style.bottom = `${Math.random() * 90}%`; // 隨機Y軸起始位置
-                    icon.style.animationDuration = `${Math.random() * 15 + 15}s`; // 15-30s 飛行速度
-                    icon.style.opacity = (Math.random() * 0.3 + 0.4).toFixed(1); // 0.4 - 0.7 透明度 (已調亮)
-                    icon.style.transform = `scale(${Math.random() * 0.5 + 0.5})`; // 0.5x - 1.0x 大小
-
-                    container.appendChild(icon);
-                    icon.addEventListener('animationend', () => icon.remove());
-                }, 4000); // 每 4 秒嘗試產生一個 (原為2000)
+                const icon = document.createElement('div');
+                icon.className = 'bg-icon';
+                
+                // --- 修改為依序循環 ---
+                icon.innerHTML = bgIcons[iconCounter % bgIcons.length];
+                iconCounter++; // 遞增計數器
+                // ---------------------
+                
+                icon.style.bottom = `${Math.random() * 90}%`; // 隨機Y軸起始位置
+                icon.style.animationDuration = `${Math.random() * 15 + 15}s`; // 15-30s 飛行速度
+                icon.style.opacity = (Math.random() * 0.3 + 0.4).toFixed(1); // 0.4 - 0.7 透明度 (已調亮)
+                icon.style.transform = `scale(${Math.random() * 0.5 + 0.5})`; // 0.5x - 1.0x 大小
+                
+                elements.backgroundLanternContainer.appendChild(icon);
+                
+                icon.addEventListener('animationend', () => {
+                    icon.remove(); // 圖標消失
+                    // 當一個圖標消失時，嘗試產生一個新的來遞補
+                    // 為了避免同時消失又同時產生，加入一點隨機延遲
+                    setTimeout(createPersistentLantern, Math.random() * 5000); // 0-5秒後遞補
+                });
             }
-            // === 新系統結束 ===
+
+            function managePersistentLanterns() {
+                // 初始啟動時，產生最大數量的圖標，並設定隨機延遲讓它們錯開
+                for (let i = 0; i < MAX_LANTERNS; i++) {
+                    setTimeout(createPersistentLantern, Math.random() * 15000); // 0-15秒內錯開產生
+                }
+            }
+            // === 新的天燈系統結束 ===
 
             function switchView(view) {
                 elements.inputSection.classList.toggle('hidden', view !== 'input');
@@ -468,8 +489,12 @@
                 elements.marqueeContents.forEach(mc => mc.innerHTML = '');
                 if (guests.length === 0) return;
                 
+                // --- 隨機洗牌祝福語順序 (已移除) ---
+                
                 const marqueeGuests = [[], [], [], []];
+                // 使用原始的 guests 陣列來分配
                 guests.forEach((guest, index) => marqueeGuests[index % 4].push(guest));
+                
                 marqueeGuests.forEach((rowGuests, index) => {
                     if (rowGuests.length > 0) {
                         const content = rowGuests.map(g => `<div class="blessing-item">“${g.blessing}”<span class="name">- ${g.name}</span><span class="details">(${g.organization} ${g.title})</span></div>`).join('');
@@ -480,13 +505,13 @@
                         const baseDuration = (rowGuests.length * (35 + [0, -4, 3, -2][index]));
                         const duration = baseDuration * 1.5; // 速度減慢 50%
                         
-                        marqueeElement.style.animation = `marquee ${Math.max(duration, 60)}s linear infinite`; // 基礎時間也延長 (原為40)
+                        marqueeElement.style.animation = `marquee ${Math.max(duration, 90)}s linear infinite`; // 基礎時間也延長 (原為40, 60)
                     }
                 });
             }
             
             async function handleGenerateBlessing() {
-                const eventTitle = localStorage.getItem('eventTitle_v2') || translations[currentLang].eventTitleDefault; // 從 localStorage 獲取標題 // <-- 修改
+                const eventTitle = localStorage.getItem('eventTitle_v2') || translations[currentLang].eventTitleDefault; 
                 const prompt = translations[currentLang].geminiPrompt(eventTitle);
                 elements.blessingLoader.classList.remove('hidden');
                 elements.generateBlessingBtn.disabled = true;
