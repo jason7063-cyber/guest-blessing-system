@@ -100,6 +100,33 @@
                 opacity: 0; 
             }
         }
+
+        /* --- English Font Adjustments --- */
+        .lang-en h1#event-title {
+            font-size: 1.75rem; /* 28px */
+        }
+        @media (min-width: 768px) {
+            .lang-en h1#event-title { font-size: 2rem; } /* 32px */
+        }
+         @media (min-width: 1024px) {
+            .lang-en h1#event-title { font-size: 2.5rem; } /* 40px */
+        }
+        .lang-en .blessing-item {
+            font-size: 1.25rem; /* 20px - default was 1.5rem */
+        }
+        .lang-en .blessing-item .name {
+            font-size: 1rem; /* 16px - default was 1.1rem */
+        }
+        .lang-en .blessing-item .details {
+            font-size: 0.8rem; /* 12.8px - default was 0.9rem */
+        }
+        .lang-en [data-lang-key="blessingPlaceholder"] {
+            font-size: 1.25rem; /* 20px - default was 2xl */
+        }
+        .lang-en h2[data-lang-key="signInTitle"] {
+            font-size: 1.75rem; /* 28px - default was 3xl */
+        }
+        /* --- End English Font Adjustments --- */
     </style>
 </head>
 <body class="w-full h-screen flex flex-col p-4 md:p-6 lg:p-8">
@@ -276,6 +303,14 @@
             function setLanguage(lang) {
                 currentLang = lang;
                 document.documentElement.lang = lang === 'zh-Hant' ? 'zh-Hant' : 'en';
+
+                // Add/Remove class on body for font styling
+                if (lang === 'en') {
+                    document.body.classList.add('lang-en');
+                } else {
+                    document.body.classList.remove('lang-en');
+                }
+                
                 const langStrings = translations[lang];
                 document.querySelectorAll('[data-lang-key]').forEach(el => {
                     const key = el.dataset.langKey;
