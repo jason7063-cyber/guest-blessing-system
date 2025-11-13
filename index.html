@@ -283,7 +283,7 @@
                 });
 
                 // 更新標題 (使用 localStorage)
-                const savedTitle = localStorage.getItem('eventTitle');
+                const savedTitle = localStorage.getItem('eventTitle_v2'); // <-- 修改
                 if (!savedTitle || savedTitle === translations['zh-Hant'].eventTitleDefault || savedTitle === translations['en'].eventTitleDefault) {
                      elements.eventTitle.textContent = langStrings.eventTitleDefault;
                 } else {
@@ -296,9 +296,9 @@
             
             function init() {
                 // 從 localStorage 讀取活動標題
-                const savedTitle = localStorage.getItem('eventTitle');
+                const savedTitle = localStorage.getItem('eventTitle_v2'); // <-- 修改
                 if (!savedTitle) {
-                    localStorage.setItem('eventTitle', translations[currentLang].eventTitleDefault);
+                    localStorage.setItem('eventTitle_v2', translations[currentLang].eventTitleDefault); // <-- 修改
                 }
                 elements.eventTitle.textContent = savedTitle || translations[currentLang].eventTitleDefault;
                 
@@ -327,16 +327,16 @@
                 elements.langZhBtn.addEventListener('click', () => {
                     setLanguage('zh-Hant');
                     // 如果標題是舊的英文預設，則切換為中文預設
-                    if (localStorage.getItem('eventTitle') === translations['en'].eventTitleDefault) {
-                        localStorage.setItem('eventTitle', translations['zh-Hant'].eventTitleDefault);
+                    if (localStorage.getItem('eventTitle_v2') === translations['en'].eventTitleDefault) { // <-- 修改
+                        localStorage.setItem('eventTitle_v2', translations['zh-Hant'].eventTitleDefault); // <-- 修改
                         elements.eventTitle.textContent = translations['zh-Hant'].eventTitleDefault;
                     }
                 });
                 elements.langEnBtn.addEventListener('click', () => {
                     setLanguage('en');
                     // 如果標題是舊的中文預設，則切換為英文預設
-                    if (localStorage.getItem('eventTitle') === translations['zh-Hant'].eventTitleDefault) {
-                        localStorage.setItem('eventTitle', translations['en'].eventTitleDefault);
+                    if (localStorage.getItem('eventTitle_v2') === translations['zh-Hant'].eventTitleDefault) { // <-- 修改
+                        localStorage.setItem('eventTitle_v2', translations['en'].eventTitleDefault); // <-- 修改
                         elements.eventTitle.textContent = translations['en'].eventTitleDefault;
                     }
                 });
@@ -348,7 +348,7 @@
                     const newTitle = prompt(translations[currentLang].promptTitleEdit, elements.eventTitle.textContent);
                     if (newTitle && newTitle.trim() !== '') {
                         elements.eventTitle.textContent = newTitle.trim();
-                        localStorage.setItem('eventTitle', newTitle.trim());
+                        localStorage.setItem('eventTitle_v2', newTitle.trim()); // <-- 修改
                         showToast(translations[currentLang].toastTitleUpdated, 'info');
                     }
                 });
@@ -451,7 +451,7 @@
             }
             
             async function handleGenerateBlessing() {
-                const eventTitle = localStorage.getItem('eventTitle') || translations[currentLang].eventTitleDefault; // 從 localStorage 獲取標題
+                const eventTitle = localStorage.getItem('eventTitle_v2') || translations[currentLang].eventTitleDefault; // 從 localStorage 獲取標題 // <-- 修改
                 const prompt = translations[currentLang].geminiPrompt(eventTitle);
                 elements.blessingLoader.classList.remove('hidden');
                 elements.generateBlessingBtn.disabled = true;
