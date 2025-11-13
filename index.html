@@ -17,18 +17,44 @@
 
         #display-section { position: relative; overflow: hidden; }
 
-        /* --- 前景跑馬燈樣式 --- */
-        .marquee-wall { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; justify-content: space-around; }
+        /* --- 跑馬燈樣式 --- */
+        .marquee-wall { 
+            /* z-index: 10; (在這個結構中不再需要) */
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-around;
+            position: relative; /* 改回 relative */
+            width: 100%; height: 100%;
+        }
         .marquee-container { width: 100%; overflow: hidden; white-space: nowrap; box-sizing: border-box; display: flex; align-items: center; height: 25%; }
         .marquee-content { display: inline-block; padding-left: 100%; animation: marquee 60s linear infinite; }
         .marquee-container:hover .marquee-content { animation-play-state: paused; }
-        .blessing-item { display: inline-flex; align-items: baseline; margin: 0 2rem; font-size: 1.5rem; color: #f59e0b; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
+        .blessing-item { 
+            display: inline-flex; 
+            align-items: baseline; 
+            margin: 0 2rem; 
+            font-size: 1.5rem; 
+            color: #f59e0b; 
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1); 
+            background-color: rgba(255, 255, 255, 0.45); /* 白色 45% 背景 */
+            padding: 0.25rem 0.75rem; 
+            border-radius: 0.5rem; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: relative; /* 確保在天燈之上 */
+            z-index: 10;
+        }
         .blessing-item .name { color: #4b5563; font-size: 1.1rem; margin-left: 0.75rem; }
         .blessing-item .details { color: #6b7280; font-size: 0.9rem; margin-left: 0.5rem; }
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
         
         /* --- 背景天燈 --- */
-        .background-lantern-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; overflow: hidden; }
+        .background-lantern-container { 
+            position: absolute; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            z-index: 1; /* 1. 最底層 (天燈) */
+            overflow: hidden; 
+        }
         
         /* 持續循環的小天燈 */
         .persistent-lantern {
@@ -39,32 +65,6 @@
             opacity: 0;
             animation: float-up-persistent 25s linear infinite;
         }
-
-        /* 承載祝福語的大天燈 */
-        .bg-lantern {
-            position: absolute;
-            bottom: -350px;
-            display: grid;
-            place-items: center;
-            opacity: 0;
-            animation: float-up-bg 30s linear forwards;
-            filter: blur(1px);
-        }
-        .bg-lantern > * { grid-column: 1 / -1; grid-row: 1 / -1; }
-        .bg-lantern-text {
-            width: 200px;
-            padding: 15px;
-            text-align: center;
-            color: #854d0e; /* 深橘色文字 */
-            opacity: 0.95;
-            z-index: 2;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        .bg-lantern-text .blessing { font-size: 1.3rem; font-weight: 700; word-wrap: break-word; }
-        .bg-lantern-text .name { font-size: 1rem; margin-top: 8px; font-weight: 500;}
         
         /* SVG 天燈共用樣式 */
         .lantern-svg {
@@ -77,12 +77,6 @@
             10% { opacity: 0.6; }
             90% { opacity: 0.6; }
             100% { transform: translateY(-120vh) scale(0.8); opacity: 0; }
-        }
-        @keyframes float-up-bg {
-            0% { transform: translateY(0) scale(1); opacity: 0; }
-            15% { opacity: 1; }
-            85% { opacity: 1; }
-            100% { transform: translateY(-120vh) scale(1.5); opacity: 0; }
         }
     </style>
 </head>
@@ -102,8 +96,12 @@
         </nav>
     </header>
 
-    <main class="flex-grow w-full h-full overflow-hidden z-10">
-        <section id="input-section" class="hidden w-full h-full flex items-center justify-center">
+    <main class="flex-grow w-full h-full overflow-hidden z-10 relative">
+        <!-- 天燈背景 (最底層) -->
+        <div class="background-lantern-container" id="background-lantern-container" style="z-index: 1;"></div>
+
+        <!-- 簽到區塊 (上層) -->
+        <section id="input-section" class="hidden w-full h-full flex items-center justify-center" style="z-index: 10;">
             <div class="w-full max-w-lg bg-white/80 backdrop-blur-sm border border-gray-200 p-8 rounded-2xl shadow-xl">
                 <h2 data-lang-key="signInTitle" class="text-3xl font-bold text-center mb-6 text-[#005a9e]"></h2>
                 <form id="guest-form" class="space-y-6">
@@ -140,11 +138,11 @@
             </div>
         </section>
 
-        <section id="display-section" class="w-full h-full bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-2xl shadow-xl">
-             <div class="background-lantern-container" id="background-lantern-container"></div>
-             <div class="marquee-wall">
-                <div id="blessing-placeholder" class="absolute inset-0 flex items-center justify-center text-center text-gray-500">
-                    <p data-lang-key="blessingPlaceholder" class="text-2xl"></p>
+        <!-- 祝福牆區塊 (中層，會遮住天燈) -->
+        <section id="display-section" class="w-full h-full bg-white/[.10] backdrop-blur-sm border border-gray-200/50 rounded-2xl shadow-xl" style="z-index: 5;">
+             <div id="blessing-wall" class="marquee-wall w-full h-full p-4 relative">
+                <div id="blessing-placeholder" class="absolute inset-0 flex items-center justify-center text-center text-gray-700 bg-white/50 backdrop-blur-sm">
+                    <p data-lang-key="blessingPlaceholder" class="text-2xl font-semibold"></p>
                 </div>
                 <div class="marquee-container"><div class="marquee-content" id="marquee-content-1"></div></div>
                 <div class="marquee-container"><div class="marquee-content" id="marquee-content-2"></div></div>
@@ -200,13 +198,51 @@
             };
 
             const translations = {
-                'zh-Hant': { eventTitleDefault: '2025桃園市國民小學中外師資培訓共識營', navInput: '簽到輸入', navDisplay: '祝福牆面', signInTitle: '貴賓簽到', labelName: '姓名', labelSchool: '服務學校', labelTitle: '職稱', labelBlessing: '祝福語 (50字以內)', submitButton: '簽到', blessingPlaceholder: '等待貴賓的祝福...', toastSuccess: '感謝您的祝福！簽到成功！', toastError: '請填寫所有欄位', aiButton: 'AI 幫我寫', aiLoading: '產生中...', toastAiError: 'AI祝福語產生失敗，請稍後再試', toastDbError: '簽到失敗，請檢查網路連線或聯繫管理員。', geminiPrompt: (title) => `你是一位參加「${title}」活動的貴賓。請以正體中文寫一句簡短、誠摯且正面的祝福語，風格高雅，字數請控制在50字以內。`, },
-                'en': { eventTitleDefault: '2025 Taoyuan Elementary School Teacher Training Consensus Camp', navInput: 'Sign-In Form', navDisplay: 'Blessing Wall', signInTitle: 'Guest Sign-In', labelName: 'Name', labelSchool: 'School/Organization', labelTitle: 'Title', labelBlessing: 'Blessing (max 50 characters)', submitButton: 'Sign In', blessingPlaceholder: 'Waiting for guests\' blessings...', toastSuccess: 'Thank you for your blessing! Sign-in successful!', toastError: 'Please fill in all fields.', aiButton: 'Generate with AI', aiLoading: 'Generating...', toastAiError: 'AI blessing generation failed. Please try again later.', toastDbError: 'Sign-in failed. Please check your connection or contact an administrator.', geminiPrompt: (title) => `You are a distinguished guest attending the "${title}" event. Please write a short, sincere, and positive blessing in elegant English, within 50 characters.`, }
+                'zh-Hant': { 
+                    eventTitleDefault: '2025桃園市國民小學中外師資培訓共識營', 
+                    navInput: '簽到輸入', 
+                    navDisplay: '祝福牆面', 
+                    signInTitle: '貴賓簽到', 
+                    labelName: '姓名', 
+                    labelSchool: '服務學校', 
+                    labelTitle: '職稱', 
+                    labelBlessing: '祝福語 (50字以內)', 
+                    submitButton: '簽到', 
+                    blessingPlaceholder: '等待貴賓的祝福...', 
+                    toastSuccess: '感謝您的祝福！簽到成功！', 
+                    toastError: '請填寫所有欄位', 
+                    aiButton: 'AI 幫我寫', 
+                    aiLoading: '產生中...', 
+                    toastAiError: 'AI祝福語產生失敗，請稍後再試', 
+                    toastDbError: '簽到失敗，請檢查網路連線或聯繫管理員。', 
+                    toastDbReadError: '讀取祝福牆失敗，請檢查網路或Firebase權限。',
+                    geminiPrompt: (title) => `你是一位參加「${title}」活動的貴賓。請以正體中文寫一句簡短、誠摯且正面的祝福語，風格高雅，字數請控制在50字以內。`, 
+                },
+                'en': { 
+                    eventTitleDefault: '2025 Taoyuan Elementary School Teacher Training Consensus Camp', 
+                    navInput: 'Sign-In Form', 
+                    navDisplay: 'Blessing Wall', 
+                    signInTitle: 'Guest Sign-In', 
+                    labelName: 'Name', 
+                    labelSchool: 'School/Organization', 
+                    labelTitle: 'Title', 
+                    labelBlessing: 'Blessing (max 50 characters)', 
+                    submitButton: 'Sign In', 
+                    blessingPlaceholder: 'Waiting for guests\' blessings...', 
+                    toastSuccess: 'Thank you for your blessing! Sign-in successful!', 
+                    toastError: 'Please fill in all fields.', 
+                    aiButton: 'Generate with AI', 
+                    aiLoading: 'Generating...', 
+                    toastAiError: 'AI blessing generation failed. Please try again later.', 
+                    toastDbError: 'Sign-in failed. Please check your connection or contact an administrator.',
+                    toastDbReadError: 'Failed to load blessing wall. Please check connection or Firebase permissions.',
+                    geminiPrompt: (title) => `You are a distinguished guest attending the "${title}" event. Please write a short, sincere, and positive blessing in elegant English, within 50 characters.`, 
+                }
             };
             
             let guests = [];
             let currentLang = 'zh-Hant';
-            let processedDocIds = new Set();
+            let processedDocIds = new Set(); // 保持這個，避免重複觸發舊天燈
 
             // --- Google Sheet 整合 ---
             const googleAppScriptUrl = "https://script.google.com/macros/s/AKfycbyS5z01QVYHwABEgxlJ8UkD4uH6B-xBSizSkZoH7OKj0hP0uQS1rDEVc7Axds4TJgLG/exec";
@@ -245,21 +281,31 @@
                 switchView('display');
                 
                 // 啟動持續的背景小天燈
-                startPersistentLanterns();
+                // startPersistentLanterns(); // 舊的呼叫方式
+                managePersistentLanterns(); // <-- 改用新的管理函數
 
-                const guestsCollection = collection(db, "guests");
-                onSnapshot(guestsCollection, (snapshot) => {
-                    guests = snapshot.docs.map(doc => doc.data());
-                    guests.sort((a, b) => a.timestamp?.seconds - b.timestamp?.seconds);
-                    updateBlessingMarquee();
+                try {
+                    const guestsCollection = collection(db, "guests");
+                    onSnapshot(guestsCollection, (snapshot) => {
+                        guests = snapshot.docs.map(doc => doc.data());
+                        guests.sort((a, b) => (a.timestamp?.seconds || 0) - (b.timestamp?.seconds || 0));
+                        updateBlessingMarquee(); // <--- 改回呼叫跑馬燈
 
-                    snapshot.docChanges().forEach((change) => {
-                        if (change.type === "added" && !processedDocIds.has(change.doc.id)) {
-                            processedDocIds.add(change.doc.id);
-                            launchBackgroundLantern(change.doc.data());
-                        }
+                        // 移除 launchBackgroundLantern 的呼叫
+                        // snapshot.docChanges().forEach((change) => {
+                        //     if (change.type === "added" && !processedDocIds.has(change.doc.id)) {
+                        //         processedDocIds.add(change.doc.id);
+                        //         // launchBackgroundLantern(change.doc.data()); // <--- 移除
+                        //     }
+                        // });
+                    }, (error) => {
+                        console.error("Firestore read error:", error);
+                        showToast(translations[currentLang].toastDbReadError, 'error');
                     });
-                });
+                } catch (error) {
+                    console.error("Failed to initialize Firestore listener:", error);
+                    showToast(translations[currentLang].toastDbReadError, 'error');
+                }
 
                 elements.showInputBtn.addEventListener('click', () => switchView('input'));
                 elements.showDisplayBtn.addEventListener('click', () => switchView('display'));
@@ -269,42 +315,46 @@
                 elements.generateBlessingBtn.addEventListener('click', handleGenerateBlessing);
             }
 
-            function startPersistentLanterns() {
-                setInterval(() => {
-                    const lantern = document.createElement('div');
-                    lantern.className = 'persistent-lantern';
-                    lantern.innerHTML = Math.random() > 0.5 ? yellowLanternSVG : orangeLanternSVG;
-                    
-                    lantern.style.left = `${Math.random() * 90}%`;
-                    lantern.style.animationDuration = `${Math.random() * 15 + 20}s`; // 20-35s
-                    elements.backgroundLanternContainer.appendChild(lantern);
-                    lantern.addEventListener('animationend', () => lantern.remove());
-                }, 3000); // 每 3 秒產生一個
-            }
+            // === 舊的天燈產生函數 (已移除) ===
+            // function startPersistentLanterns() { ... }
 
-            function launchBackgroundLantern(guest) {
+            // === 新的天燈總量管理系統 ===
+            const MAX_LANTERNS = 4; // *** 設定最大同時顯示的天燈數量 ***
+
+            function createPersistentLantern() {
+                // 檢查目前天燈數量，如果超過上限就不再產生
+                const currentLanterns = document.querySelectorAll('.persistent-lantern').length;
+                if (currentLanterns >= MAX_LANTERNS) {
+                    return; // 達到上限，停止產生
+                }
+
                 const lantern = document.createElement('div');
-                lantern.className = 'bg-lantern';
+                lantern.className = 'persistent-lantern';
+                lantern.innerHTML = Math.random() > 0.5 ? yellowLanternSVG : orangeLanternSVG;
                 
-                const lanternSVG = Math.random() > 0.5 ? yellowLanternSVG : orangeLanternSVG;
-                
-                lantern.innerHTML = `
-                    <div style="width: 220px; height: 264px; position: relative;">
-                        ${lanternSVG.replace('<svg', '<svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.7;"')}
-                        <div class="bg-lantern-text" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
-                            <p class="blessing">“${guest.blessing}”</p>
-                            <p class="name">- ${guest.name}</p>
-                        </div>
-                    </div>
-                `;
-                
-                lantern.style.left = `${Math.random() * 70 + 15}%`;
-                lantern.style.transform = `scale(${Math.random() * 0.4 + 0.8})`;
-                lantern.style.animationDuration = `${Math.random() * 10 + 25}s`;
-
+                lantern.style.left = `${Math.random() * 90}%`;
+                lantern.style.animationDuration = `${Math.random() * 20 + 50}s`; // 50-70s 飛行速度
                 elements.backgroundLanternContainer.appendChild(lantern);
-                lantern.addEventListener('animationend', () => lantern.remove());
+                
+                lantern.addEventListener('animationend', () => {
+                    lantern.remove(); // 天燈消失
+                    // 當一個天燈消失時，嘗試產生一個新的來遞補
+                    // 為了避免同時消失又同時產生，加入一點隨機延遲
+                    setTimeout(createPersistentLantern, Math.random() * 5000); // 0-5秒後遞補
+                });
             }
+
+            function managePersistentLanterns() {
+                // 初始啟動時，產生最大數量的天燈，並設定隨機延遲讓它們錯開
+                for (let i = 0; i < MAX_LANTERNS; i++) {
+                    setTimeout(createPersistentLantern, Math.random() * 15000); // 0-15秒內錯開產生
+                }
+            }
+            // === 新的天燈系統結束 ===
+
+
+            // 移除 launchBackgroundLantern 函數
+            // function launchBackgroundLantern(guest) { ... }
 
             function switchView(view) {
                 elements.inputSection.classList.toggle('hidden', view !== 'input');
@@ -335,7 +385,6 @@
                         const guestForFirebase = { ...newGuestData, timestamp: serverTimestamp() };
                         await addDoc(collection(db, "guests"), guestForFirebase);
                         
-                        // == 新增 == : 同時傳送到 Google Sheet
                         sendDataToGoogleSheet(newGuestData);
 
                         elements.guestForm.reset();
@@ -343,11 +392,12 @@
                         switchView('display');
                     } catch (error) { 
                         console.error("Error adding document: ", error); 
-                        showToast(translations[currentLang].toastDbError, 'error'); // 改用 showToast
+                        showToast(translations[currentLang].toastDbError, 'error');
                     }
                 } else { showToast(translations[currentLang].toastError, 'error'); }
             }
             
+            // 恢復為跑馬燈的更新邏輯
             function updateBlessingMarquee() {
                 elements.blessingPlaceholder.style.display = guests.length > 0 ? 'none' : 'flex';
                 elements.marqueeContents.forEach(mc => mc.innerHTML = '');
